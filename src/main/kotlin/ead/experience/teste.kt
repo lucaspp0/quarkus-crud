@@ -4,19 +4,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
-import org.apache.commons.io.FileUtils
 import java.io.File
 import javax.ws.rs.*
 import javax.ws.rs.Consumes
 
 import javax.ws.rs.POST
-import java.io.FileOutputStream
-import java.io.IOException
-
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.*
 
 
 @Path("/teste")
@@ -28,8 +20,8 @@ class Teste {
     fun fileUpload(@MultipartForm resource: Resource): String? {
         if(resource.file != null){
             return try {
-                val FullPath = FileUtil.GravarFoto(resource.file!!)
-                "data:image/png;base64, " + FileUtil.Obterbase64(FullPath)
+                val FullPath = FileUtil.gravarFoto(resource.file!!)
+                "data:image/png;base64, " + FileUtil.obterbase64(FullPath)
             }catch (ex: Exception){
                 "erro"
             }
