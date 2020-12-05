@@ -6,6 +6,7 @@ import ead.experience.dto.autentificacao.AlunoDto
 import ead.experience.dto.autentificacao.AlunoSendDto
 import ead.experience.repository.DbTemp
 import ead.experience.utils.FileUtil
+import org.jboss.resteasy.annotations.jaxrs.PathParam
 import java.nio.file.Files
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -24,10 +25,10 @@ class AlunoRt {
         ).build()
     }
 
-    @Path("/{}")
+    @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun materiaPorAluno() : Response{
+    fun materiaPorAluno(@PathParam id: Int) : Response{
         TODO()
     }
 
