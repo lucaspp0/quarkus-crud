@@ -49,10 +49,17 @@ class AutentificacaoRt {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     fun CadastroProf(@MultipartForm profDto: ProfessorDto): Response {
 
-        val profValido = DbTemp.Professores
+        var profValido = DbTemp.Professores
                 .stream()
                 .filter { prof -> prof.login == profDto.login || prof.email == profDto.email }
                 .findFirst().isEmpty
+
+        if(profValido){
+            profValido = DbTemp.Alunos
+                .stream()
+                .filter { aluno -> aluno.login == profDto.login || aluno.email == profDto.email }
+                .findFirst().isEmpty
+        }
 
         if (profValido) {
             val nextId: Int = DbTemp.Professores.maxBy { x -> x.id!! }?.id?.or(0)?.plus(1)!!
@@ -71,10 +78,18 @@ class AutentificacaoRt {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     fun CadastroAluno(@MultipartForm alunoDto: AlunoDto): Response {
-        val alunoValido = DbTemp.Alunos
+
+        var alunoValido = DbTemp.Alunos
                 .stream()
                 .filter { prof -> prof.login == alunoDto.login || prof.email == alunoDto.email }
                 .findFirst().isEmpty
+
+        if(alunoValido){
+            alunoValido = DbTemp.Professores
+                .stream()
+                .filter { prof -> prof.login == alunoDto.login || prof.email == alunoDto.email }
+                .findFirst().isEmpty
+        }
 
         if (alunoValido) {
             val nextId: Int = DbTemp.Alunos.maxBy { x -> x.id!! }?.id?.or(0)?.plus(1)!!
