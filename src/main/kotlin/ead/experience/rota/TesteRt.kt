@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/teste")
-class Test {
+class TesteRt {
 
     @Path("/")
     @GET

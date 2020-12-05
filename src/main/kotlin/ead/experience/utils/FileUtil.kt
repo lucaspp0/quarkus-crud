@@ -13,7 +13,7 @@ object FileUtil {
 
     val pathImg = "img"
 
-    fun GravarFoto(file: File) : String{
+    fun gravarFoto(file: File) : String{
         val data = Files.readAllBytes(file.toPath())
         var nameFile = File.separator + System.currentTimeMillis() + "_" + file.name
 
@@ -33,14 +33,14 @@ object FileUtil {
     }
 
     @Throws(IOException::class)
-    fun Obterbase64(fullPath: String): String? {
+    fun obterbase64(fullPath: String): String? {
         val file = File(fullPath)
         val encoded: ByteArray = Base64.getEncoder().encode(FileUtils.readFileToByteArray(file))
         return String(encoded, StandardCharsets.US_ASCII)
     }
 
     @Throws(IOException::class)
-    private fun writeFile(content: ByteArray, filename: String) {
+    fun writeFile(content: ByteArray, filename: String) {
         val file = File(filename)
         if (!file.exists()) {
             file.createNewFile()
