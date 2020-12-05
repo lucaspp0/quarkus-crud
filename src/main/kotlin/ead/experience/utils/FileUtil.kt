@@ -11,14 +11,25 @@ import java.util.*
 
 object FileUtil {
 
+    val pathImg = "img"
+
     fun GravarFoto(file: File) : String{
         val data = Files.readAllBytes(file.toPath())
-        val nameFile = File.separator + System.currentTimeMillis() + "_" + file.name + "." + file.extension
-        val newFile = File(Paths.get(Paths.get(".").toAbsolutePath().normalize().toString() + File.separator + "data" ).toString())
-        if(!newFile.exists()) file.mkdir()
+        var nameFile = File.separator + System.currentTimeMillis() + "_" + file.name
 
-        writeFile(data, newFile.absolutePath + "img" + newFile.absolutePath + nameFile)
-        return newFile.absolutePath + "img" + nameFile;
+        if(file.extension != null && !(file.extension.isEmpty() || file.extension.isBlank()) )
+            nameFile = "." + file.extension
+
+        val newFile =
+            File(Paths.get(
+                Paths.get(".").toAbsolutePath().normalize().toString()
+                        + File.separator + "data" + File.separator + pathImg )
+                .toString())
+
+        if(!newFile.exists()) newFile.mkdir()
+
+        writeFile(data, newFile.absolutePath + nameFile)
+        return newFile.absolutePath + nameFile;
     }
 
     @Throws(IOException::class)

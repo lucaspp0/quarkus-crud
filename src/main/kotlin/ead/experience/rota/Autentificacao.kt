@@ -29,12 +29,12 @@ class Autentificacao {
         if (alunoEncontrado.isPresent) {
             return Response.status(200).entity(AlunoToAlunoSend(alunoEncontrado.get())).build()
         } else {
-            val profEncontrado: Optional<Professor> = DbTemp.Professores
+            val alunoEncontrado: Optional<Professor> = DbTemp.Professores
                     .stream()
                     .filter { aluno -> (aluno.email.equals(loginDto.login) || aluno.login.equals(loginDto.login)) && aluno.senha.equals(loginDto.senha) }
                     .findFirst()
-            return if (profEncontrado.isPresent)
-                Response.status(200).entity(ProfessorToProfessorSend(profEncontrado.get())).build()
+            return if (alunoEncontrado.isPresent)
+                Response.status(200).entity(ProfessorToProfessorSend(alunoEncontrado.get())).build()
             else
                 Response.status(404).entity(MensagemDto("Usuário não encontrado")).build()
         }
@@ -75,6 +75,7 @@ class Autentificacao {
 
         if (alunoValido) {
             val nextId: Int = DbTemp.Alunos.maxBy { x -> x.id!! }?.id?.or(0)?.plus(1)!!
+
             var fotoUrl: String? = null;
             if (alunoDto.foto != null)
                 fotoUrl = FileUtil.GravarFoto(alunoDto.foto!!)
@@ -94,7 +95,7 @@ class Autentificacao {
                 aluno.senha,
                 aluno.login,
                 null,
-                aluno.CH
+                if (aluno.CH != null || aluno.CH!! <= 0 ) 10f else aluno.CH
         )
         if(aluno.foto != null)
             alunoSend.foto = FileUtil.Obterbase64(aluno.foto!!)
@@ -112,7 +113,7 @@ class Autentificacao {
                 null
         )
         if(ProfessorSend.foto != null)
-            ProfessorSend.foto = FileUtil.Obterbase64(professor.foto!!)
+            ProfessorSend.foto = "data:image/png;base64," + FileUtil.Obterbase64(professor.foto!!)
 
         return ProfessorSend
     }
