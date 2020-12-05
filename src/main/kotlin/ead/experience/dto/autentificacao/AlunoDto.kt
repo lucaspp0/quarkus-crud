@@ -7,7 +7,7 @@ import javax.ws.rs.FormParam
 open class AlunoDto{
 
     @FormParam("nome")
-    var nome: String? = null
+    var nome: String = ""
 
     @FormParam("email")
     lateinit var email: String

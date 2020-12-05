@@ -4,9 +4,9 @@ import ead.experience.domain.Materia
 import java.util.*
 
 class Aula(
-    var id: Int? = null,
+    var id: Int,
     var dataInicio: Date? = null,
     var dataFinal: Date? = null,
-    var materia: Materia? = null,
-    var professor: Professor? = null
+    var materia: Materia,
+    var professor: Professor
 )

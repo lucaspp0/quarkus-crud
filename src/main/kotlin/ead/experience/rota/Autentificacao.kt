@@ -107,9 +107,9 @@ class Autentificacao {
         var ProfessorSend = ProfessorSendDto(
                 professor.id,
                 professor.nome,
-                professor.email,
-                professor.senha,
-                professor.login,
+                professor.email!!,
+                professor.senha!!,
+                professor.login!!,
                 null
         )
         if(ProfessorSend.foto != null)
