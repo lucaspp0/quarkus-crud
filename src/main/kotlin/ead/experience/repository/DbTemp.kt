@@ -1,6 +1,7 @@
 package ead.experience.repository
 
 import ead.experience.domain.*
+import java.util.*
 
 object DbTemp {
 
@@ -23,4 +24,9 @@ object DbTemp {
             mutableListOf<AlunoMateria>(
                     AlunoMateria(1, Materias[0], Alunos[0], 0f)
             )
+
+    val Aulas =
+        mutableListOf<Aula>(
+            Aula(1, Date(), null, Materias[0], Professores[0])
+        )
 }
