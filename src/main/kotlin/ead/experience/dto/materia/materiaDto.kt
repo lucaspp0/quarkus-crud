@@ -1,6 +1,7 @@
 package ead.experience.dto.materia
 
-open class MaterialDto(
-        var login: String = "",
-        var senha: String = ""
+open class MateriaDto (
+        var nome: String = "",
+        var custo: Float = 0F,
+        var idProfessor: Int = 0
 )

@@ -38,7 +38,7 @@ class AlunoRt {
     fun updateAlunos(alunoReceiveDto : AlunoReceiveDto) : Response{
         val alunoOptional = DbTemp.Alunos.stream().filter { x -> x.id!! == alunoReceiveDto.id }.findFirst()
         if(alunoOptional.isEmpty){
-            return Response.status(404).entity(MensagemDto("Aluno não encontrad")).build()
+            return Response.status(404).entity(MensagemDto("Aluno não encontrado")).build()
         }else{
             alunoOptional.get().email = alunoReceiveDto.email
             alunoOptional.get().login = alunoReceiveDto.login
