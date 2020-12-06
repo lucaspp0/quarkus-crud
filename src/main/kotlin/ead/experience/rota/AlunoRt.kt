@@ -29,7 +29,10 @@ class AlunoRt {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     fun materiaPorAluno(@PathParam id: Int) : Response{
-        TODO()
+        val listaMaterias = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.materia!!.id!! }
+        return Response.status(200).entity(
+            DbTemp.Materias.filter { x -> listaMaterias.contains(x.id!!) }
+        ).build()
     }
 
 
