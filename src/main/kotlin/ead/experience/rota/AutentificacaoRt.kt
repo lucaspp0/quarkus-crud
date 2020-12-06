@@ -6,6 +6,7 @@ import ead.experience.dto.MensagemDto
 import ead.experience.dto.autentificacao.*
 import ead.experience.repository.DbTemp
 import ead.experience.utils.FileUtil
+import org.eclipse.microprofile.openapi.annotations.Operation
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.util.*
 
@@ -20,6 +21,7 @@ class AutentificacaoRt {
     @Path("/login")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Autentificação do usuário")
     fun Login(loginDto: LoginDto): Response {
         val alunoEncontrado: Optional<Aluno> = DbTemp.Alunos
                 .stream()
@@ -47,6 +49,7 @@ class AutentificacaoRt {
     @Path("/cadastro/professor")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Operation(description = "Cadastro de professor")
     fun CadastroProf(@MultipartForm profDto: ProfessorDto): Response {
 
         var profValido = DbTemp.Professores
@@ -77,6 +80,7 @@ class AutentificacaoRt {
     @Path("/cadastro/aluno")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Operation(description = "Cadastro de aluno")
     fun CadastroAluno(@MultipartForm alunoDto: AlunoDto): Response {
 
         var alunoValido = DbTemp.Alunos
@@ -109,9 +113,9 @@ class AutentificacaoRt {
         var ProfessorSend = ProfessorSendDto(
                 professor.id,
                 professor.nome,
-                professor.email,
-                professor.senha,
-                professor.login,
+                professor.email!!,
+                professor.senha!!,
+                professor.login!!,
                 null
         )
         if(ProfessorSend.foto != null)

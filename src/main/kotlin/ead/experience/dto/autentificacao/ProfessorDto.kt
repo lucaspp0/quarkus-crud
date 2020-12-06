@@ -6,7 +6,7 @@ import javax.ws.rs.FormParam
 open class ProfessorDto{
 
         @FormParam("nome")
-        var nome: String? = null
+        var nome: String = ""
         @FormParam("email")
         lateinit var email: String
         @FormParam("senha")
