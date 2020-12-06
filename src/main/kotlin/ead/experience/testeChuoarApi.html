@@ -18,9 +18,14 @@
     const url = 'https://ead-experience.herokuapp.com';
 
     fetch(url+'/teste/aluno')
-        .then(function (response) {
-            console.log(response)
-            element.innerHTML = response.data
+    .then((response) => {
+            return response.json()
+        })
+        .then((data) => {
+            element.innerHTML = JSON.stringify(data)
+        })
+        .catch((err) => {
+            // Do something for an error here
         })
         .catch(function (error) {
             // handle error
