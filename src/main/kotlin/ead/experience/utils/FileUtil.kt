@@ -11,8 +11,6 @@ import java.util.*
 
 object FileUtil {
 
-    val pathImg = "img"
-
     fun gravarFoto(file: File) : String{
         val data = Files.readAllBytes(file.toPath())
         var nameFile = File.separator + System.currentTimeMillis() + "_" + file.name
@@ -22,8 +20,7 @@ object FileUtil {
 
         val newFile =
             File(Paths.get(
-                Paths.get(".").toAbsolutePath().normalize().toString()
-                        + File.separator + "data" + File.separator + pathImg )
+                Paths.get(".").toAbsolutePath().normalize().toString())
                 .toString())
 
         if(!newFile.exists()) newFile.mkdir()

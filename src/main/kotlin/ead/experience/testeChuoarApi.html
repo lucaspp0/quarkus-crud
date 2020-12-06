@@ -16,13 +16,23 @@
 
     // const url = 'http://localhost:8080';
     const url = 'https://ead-experience.herokuapp.com';
+	
+	
+	const params = {
+            headers: {
+                'Accept': "application/json, text/plain, */*",
+                'Content-Type': "application/json;charset=utf-8"
+            },
+            body: JSON.stringify({login: 'lucas', senha: '132'}),
+            method: "POST"
+        };
 
-    fetch(url+'/teste/aluno')
-    .then((response) => {
+	fetch(url+"/autentificacao/login", params)
+		.then((response) => {
             return response.json()
         })
         .then((data) => {
-            element.innerHTML = JSON.stringify(data)
+            element.innerHTML = JSON.parse(data)
         })
         .catch((err) => {
             // Do something for an error here

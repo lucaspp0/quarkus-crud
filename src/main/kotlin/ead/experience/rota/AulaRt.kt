@@ -1,5 +1,6 @@
 package ead.experience.rota
 
+import ead.experience.domain.AlunoMateria
 import ead.experience.domain.Aula
 import ead.experience.dto.MensagemDto
 import ead.experience.repository.DbTemp
@@ -73,4 +74,38 @@ class AulaRt {
         }
     }
 
+
+    open class AlunoMateria(
+        var materia_id: Int,
+        var aluno_id: Int
+    )
+
+    @Path("/aluno")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Vincular aluno com materia")
+    fun vincularAluno(vincularAlunoMateria: AlunoMateria) : Response{
+        val alunoOptional = DbTemp.Alunos.stream().filter { x -> x.id!! == vincularAlunoMateria.aluno_id }.findFirst()
+        val MateriaOptional = DbTemp.Materias.stream().filter { x -> x.id!! == vincularAlunoMateria.materia_id }.findFirst()
+
+        val correlacaoValida = DbTemp.AlunoMateria
+            .stream()
+            .filter {  x -> x.aluno!!.id!! == vincularAlunoMateria.materia_id && x.materia!!.id!! == vincularAlunoMateria.aluno_id }
+            .findFirst().isEmpty
+
+        if(correlacaoValida){
+
+            if(alunoOptional.isEmpty || MateriaOptional.isEmpty){
+                return Response.status(400).entity(MensagemDto("Relação já existente")).build()
+            }else{
+                val nextId: Int = DbTemp.AlunoMateria.maxBy { x -> x.id!! }?.id?.or(0)?.plus(1)!!
+                DbTemp.AlunoMateria.add( ead.experience.domain.AlunoMateria(nextId, MateriaOptional.get(), alunoOptional.get())   )
+                return Response.status(202).entity(MensagemDto("Aluno vinculado com sucesso")).build()
+            }
+
+        }else{
+            return Response.status(400).entity(MensagemDto("Relação já existente")).build()
+        }
+
+    }
 }
