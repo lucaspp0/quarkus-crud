@@ -17,7 +17,7 @@ object DbTemp {
 
     val Materias =
             mutableListOf<Materia>(
-                    Materia(1, "Português", 1200f, Professores[0])
+                    Materia(1, "Português", 1200f, null, Professores[0])
             )
 
     val AlunoMateria =
