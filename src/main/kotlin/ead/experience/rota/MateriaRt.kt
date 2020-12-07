@@ -29,7 +29,7 @@ class MateriaRt {
 
     @Path("/")
     @POST
-    @Produces(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(description = "Criar a matéria")
     fun materias(@MultipartForm materiaDto: MateriaDto): MensagemDto {
         val nextId: Int = DbTemp.Materias.maxBy { x -> x.id!! }?.id?.or(0)?.plus(1)!!
@@ -53,7 +53,7 @@ class MateriaRt {
 
     @Path("/")
     @PUT
-    @Produces(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(description = "Atualiza a matéria")
     fun materias(@MultipartForm materiaReceiveDto: MateriaReceiveDto): MensagemDto {
         val materiaCara = DbTemp.Materias.stream().filter { x -> x.id!! == materiaReceiveDto.id }.findFirst()
