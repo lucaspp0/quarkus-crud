@@ -7,6 +7,7 @@ import ead.experience.dto.autentificacao.*
 import ead.experience.repository.DbTemp
 import ead.experience.utils.FileUtil
 import org.eclipse.microprofile.openapi.annotations.Operation
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.util.*
 
@@ -22,26 +23,23 @@ class AutentificacaoRt {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Autentificação do usuário")
-    fun Login(loginDto: LoginDto): Response {
+    fun Login(@RequestBody loginDto: LoginDto): LoginSendDto? {
         val alunoEncontrado: Optional<Aluno> = DbTemp.Alunos
                 .stream()
                 .filter { aluno -> (aluno.email == loginDto.login || aluno.login == loginDto.login) && aluno.senha == loginDto.senha }
                 .findFirst()
 
         if (alunoEncontrado.isPresent) {
-            return Response.status(200)
-                .entity(
-                    AlunoRt().AlunoToAlunoSend(alunoEncontrado.get())
-                ).build()
+            return AlunoRt().AlunoToAlunoSend(alunoEncontrado.get())
         } else {
-            val alunoEncontrado: Optional<Professor> = DbTemp.Professores
+            val profEncontrado: Optional<Professor> = DbTemp.Professores
                     .stream()
                     .filter { aluno -> (aluno.email == loginDto.login || aluno.login == loginDto.login) && aluno.senha == loginDto.senha }
                     .findFirst()
-            return if (alunoEncontrado.isPresent)
-                Response.status(200).entity(ProfessorToProfessorSend(alunoEncontrado.get())).build()
+            return if (profEncontrado.isPresent)
+                ProfessorToLoginSend(profEncontrado.get())
             else
-                Response.status(404).entity(MensagemDto("Usuário não encontrado")).build()
+                null
         }
 
     }
@@ -50,7 +48,7 @@ class AutentificacaoRt {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(description = "Cadastro de professor")
-    fun CadastroProf(@MultipartForm profDto: ProfessorDto): Response {
+    fun CadastroProf(@MultipartForm profDto: ProfessorDto): MensagemDto {
 
         var profValido = DbTemp.Professores
                 .stream()
@@ -70,9 +68,9 @@ class AutentificacaoRt {
             if (profDto.foto != null)
                 fotoUrl = FileUtil.gravarFoto(profDto.foto!!)
             DbTemp.Professores.add(Professor(nextId, profDto.nome, profDto.email, profDto.senha, profDto.login, fotoUrl))
-            return Response.status(200).entity(MensagemDto("Professor foi cadastrado com sucesso")).build()
+            return MensagemDto("Professor foi cadastrado com sucesso")
         } else {
-            return Response.status(400).entity(MensagemDto("Professor já existe, cadastre email ou login diferente")).build()
+            return MensagemDto("Professor já existe, cadastre email ou login diferente")
         }
 
     }
@@ -81,7 +79,7 @@ class AutentificacaoRt {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(description = "Cadastro de aluno")
-    fun CadastroAluno(@MultipartForm alunoDto: AlunoDto): Response {
+    fun CadastroAluno(@MultipartForm alunoDto: AlunoDto): MensagemDto {
 
         var alunoValido = DbTemp.Alunos
                 .stream()
@@ -103,24 +101,25 @@ class AutentificacaoRt {
                 fotoUrl = FileUtil.gravarFoto(alunoDto.foto!!)
 
             DbTemp.Alunos.add(Aluno(nextId, alunoDto.nome, alunoDto.email, alunoDto.senha, alunoDto.login, fotoUrl, alunoDto.CH))
-            return Response.status(200).entity(MensagemDto("Aluno foi cadastrado com sucesso")).build()
+            return MensagemDto("Aluno foi cadastrado com sucesso")
         } else {
-            return Response.status(400).entity(MensagemDto("Usuário já existe, cadastre um email ou login diferente")).build()
+            return MensagemDto("Usuário já existe, cadastre um email ou login diferente")
         }
     }
 
-    fun ProfessorToProfessorSend(professor: Professor): ProfessorSendDto {
-        var ProfessorSend = ProfessorSendDto(
+    fun ProfessorToLoginSend(professor: Professor): LoginSendDto {
+        val loginSendDto = LoginSendDto(
                 professor.id,
                 professor.nome,
                 professor.email!!,
                 professor.senha!!,
                 professor.login!!,
+                null,
                 null
         )
-        if(ProfessorSend.foto != null)
-            ProfessorSend.foto = "data:image/png;base64," + FileUtil.obterbase64(professor.foto!!)
+        if(loginSendDto.foto != null)
+            loginSendDto.foto = "data:image/png;base64," + FileUtil.obterbase64(professor.foto!!)
 
-        return ProfessorSend
+        return loginSendDto
     }
 }

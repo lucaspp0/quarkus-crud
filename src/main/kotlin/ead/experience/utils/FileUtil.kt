@@ -15,13 +15,11 @@ object FileUtil {
         val data = Files.readAllBytes(file.toPath())
         var nameFile = File.separator + System.currentTimeMillis() + "_" + file.name
 
-        if(file.extension != null && !(file.extension.isEmpty() || file.extension.isBlank()) )
+        if(!(file.extension.isEmpty() || file.extension.isBlank()))
             nameFile = "." + file.extension
 
         val newFile =
-            File(Paths.get(
-                Paths.get(".").toAbsolutePath().normalize().toString())
-                .toString())
+            File(Paths.get(".").toAbsolutePath().normalize().toString())
 
         if(!newFile.exists()) newFile.mkdir()
 

@@ -1,16 +1,18 @@
 package ead.experience.rota
 
 import ead.experience.domain.Aluno
+import ead.experience.domain.Materia
 import ead.experience.dto.MensagemDto
 import ead.experience.dto.autentificacao.AlunoDto
-import ead.experience.dto.autentificacao.AlunoSendDto
+import ead.experience.dto.autentificacao.LoginSendDto
 import ead.experience.repository.DbTemp
 import ead.experience.utils.FileUtil
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.jboss.resteasy.annotations.jaxrs.PathParam
 import java.nio.file.Files
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 
 open class AlunoReceiveDto(var id: Int ) : AlunoDto()
 
@@ -19,29 +21,26 @@ class AlunoRt {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun getAlunos() : Response{
-        return Response.ok().entity(
-            DbTemp.Alunos.stream().map { x -> AlunoToAlunoSend(x) }
-        ).build()
+    fun getAlunos() : List<LoginSendDto>{
+        return DbTemp.Alunos.map { x -> AlunoToAlunoSend(x) }
     }
 
     @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun materiaPorAluno(@PathParam id: Int) : Response{
+    fun materiaPorAluno(@PathParam id: Int) : List<Materia>{
         val listaMaterias = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.materia!!.id!! }
-        return Response.status(200).entity(
-            DbTemp.Materias.filter { x -> listaMaterias.contains(x.id!!) }
-        ).build()
+        return DbTemp.Materias.filter { x -> listaMaterias.contains(x.id!!) }
     }
 
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    fun updateAlunos(alunoReceiveDto : AlunoReceiveDto) : Response{
+    @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
+    fun updateAlunos(@RequestBody alunoReceiveDto : AlunoReceiveDto) : MensagemDto{
         val alunoOptional = DbTemp.Alunos.stream().filter { x -> x.id!! == alunoReceiveDto.id }.findFirst()
         if(alunoOptional.isEmpty){
-            return Response.status(404).entity(MensagemDto("Aluno não encontrado")).build()
+            return MensagemDto("Aluno não encontrado")
         }else{
             alunoOptional.get().email = alunoReceiveDto.email
             alunoOptional.get().login = alunoReceiveDto.login
@@ -55,12 +54,12 @@ class AlunoRt {
                 alunoOptional.get().foto = FileUtil.gravarFoto(alunoReceiveDto.foto!!)
             }
 
-            return Response.status(200).entity(MensagemDto("Aluno atualizado com sucesso")).build()
+            return MensagemDto("Aluno atualizado com sucesso")
         }
     }
 
-    fun AlunoToAlunoSend(aluno: Aluno): AlunoSendDto {
-        var alunoSend = AlunoSendDto(
+    fun AlunoToAlunoSend(aluno: Aluno): LoginSendDto {
+        var alunoSend = LoginSendDto(
             aluno.id,
             aluno.nome,
             aluno.email,
