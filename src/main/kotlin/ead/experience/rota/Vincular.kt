@@ -17,12 +17,12 @@ class Vincular {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Vincular aluno com materia")
     fun vincularAluno(@RequestBody vincularAlunoMateria: AlunoMateriaDto) : MensagemDto {
-        val alunoOptional = DbTemp.Alunos.stream().filter { x -> x.id!! == vincularAlunoMateria.aluno_id }.findFirst()
-        val MateriaOptional = DbTemp.Materias.stream().filter { x -> x.id!! == vincularAlunoMateria.materia_id }.findFirst()
+        val alunoOptional = DbTemp.Alunos.stream().filter { x -> x.id!! == vincularAlunoMateria.idAluno }.findFirst()
+        val MateriaOptional = DbTemp.Materias.stream().filter { x -> x.id!! == vincularAlunoMateria.idMateria }.findFirst()
 
         val correlacaoValida = DbTemp.AlunoMateria
             .stream()
-            .filter {  x -> x.aluno!!.id!! == vincularAlunoMateria.aluno_id && x.materia!!.id!! == vincularAlunoMateria.materia_id }
+            .filter {  x -> x.aluno!!.id!! == vincularAlunoMateria.idAluno && x.materia!!.id!! == vincularAlunoMateria.idMateria }
             .findFirst().isEmpty
 
         if(correlacaoValida){

@@ -55,6 +55,7 @@ class MateriaRt {
     @PUT
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(description = "Atualiza a matéria")
+    @Produces(MediaType.APPLICATION_JSON)
     fun materias(@MultipartForm materiaReceiveDto: MateriaReceiveDto): MensagemDto {
         val materiaCara = DbTemp.Materias.stream().filter { x -> x.id!! == materiaReceiveDto.id }.findFirst()
         if(materiaCara.isEmpty){

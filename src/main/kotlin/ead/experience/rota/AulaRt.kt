@@ -1,36 +1,38 @@
 package ead.experience.rota
 
-import ead.experience.domain.AlunoMateria
 import ead.experience.domain.Aula
 import ead.experience.dto.MensagemDto
 import ead.experience.repository.DbTemp
-import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition
 import org.eclipse.microprofile.openapi.annotations.Operation
-import org.eclipse.microprofile.openapi.annotations.info.Info
-import org.eclipse.microprofile.openapi.annotations.media.Content
-import org.eclipse.microprofile.openapi.annotations.media.Schema
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses
 import org.jboss.resteasy.annotations.jaxrs.PathParam
 import java.util.*
-import javax.ws.rs.GET
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
-import kotlin.reflect.typeOf
 
 
 open class AulaDto(
-    var materia_id: Int,
-    var professor_id: Int
+    var idMateria: Int,
+    var idprofessor: Int
 )
 
 open class AlunoMateriaDto(
-    var materia_id: Int,
-    var aluno_id: Int
+    var idMateria: Int,
+    var idAluno: Int
+)
+
+open class FiltroAula(
+    var idMateria: Int? = null,
+    var idAluno: Int? = null,
+    var idProfessor: Int? = null,
+    var dataFinal: Long? = null,
+    var dataInicial: Long? = null
+)
+
+open class AtualizarAulaDto(
+    var iDAula: Int,
+    var url: String
 )
 
 @Path("/aula")
@@ -41,12 +43,12 @@ class AulaRt {
     @Operation(description = "Criar uma aula em aberto")
     fun CriarAula(@RequestBody aulaDto: AulaDto) : MensagemDto {
         val materiaOptional = DbTemp.Materias.stream()
-            .filter { x -> x.id!! == aulaDto.materia_id }.findFirst()
+            .filter { x -> x.id!! == aulaDto.idMateria }.findFirst()
 
         if(materiaOptional.isEmpty){
             return MensagemDto("Matéria não encontrada")
         }else{
-            val profOptional = DbTemp.Professores.stream().filter { x -> x.id!! == aulaDto.professor_id }.findFirst()
+            val profOptional = DbTemp.Professores.stream().filter { x -> x.id!! == aulaDto.idprofessor }.findFirst()
 
             if(profOptional.isEmpty){
                 return MensagemDto("Professor não encontrada")
@@ -60,7 +62,7 @@ class AulaRt {
                         } ){
                     return MensagemDto("Aula já está iniciada")
                 }
-                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), profOptional.get()) )
+                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), null, profOptional.get()) )
                 return MensagemDto("Aula iniciada")
             }
 
@@ -82,15 +84,52 @@ class AulaRt {
         }
     }
 
-
     @Path("/aluno/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar aulas online do aluno")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarAulaDealuno(@PathParam id: Int) : List<Aula> {
+    fun pegarAulaOnlineDeAluno(@PathParam id: Int) : List<Aula> {
         val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.id }
-        return DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal == null && aulas.dataInicio!!.after(Date()) }
+        return DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal == null && aulas.dataInicio!!.before(Date()) }
+    }
+
+
+    @Path("/aluno/todas/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "pegar todas aulas salvas do aluno")
+    @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
+    fun pegarTodasAulaDeAluno(@PathParam id: Int) : List<Aula> {
+        val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.id }
+        return DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal != null }
+    }
+
+
+    @Path("/filtro/")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "pegar aulas gravadas e filtradas")
+    @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
+    fun filtraAulas(@RequestBody filtroAula: FiltroAula) : List<Aula> {
+        var listaMateria = DbTemp.Aulas.filter { x -> x.dataFinal != null }.toMutableList()
+        if(filtroAula.dataFinal != null)
+            listaMateria = listaMateria.filter { x -> x.dataFinal != null && x.dataFinal!!.before(Date(filtroAula.dataFinal!!)) }.toMutableList()
+
+        if(filtroAula.dataInicial != null)
+            listaMateria = listaMateria.filter { x -> x.dataInicio!!.before(Date(filtroAula.dataInicial!!)) }.toMutableList()
+
+        if(filtroAula.idAluno != null){
+            val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == filtroAula.idAluno!! }.map { x -> x.id }
+            listaMateria = listaMateria.filter { aulas -> materiasId.contains(aulas.materia.id!!)}.toMutableList()
+        }
+
+        if(filtroAula.idProfessor != null)
+            listaMateria = listaMateria.filter { x -> x.professor.id!! == filtroAula.idProfessor!! }.toMutableList()
+
+        if(filtroAula.idMateria != null)
+            listaMateria = listaMateria.filter { x -> x.materia.id!! == filtroAula.idMateria!! }.toMutableList()
+        return listaMateria
     }
 
     @Path("/")
@@ -101,6 +140,19 @@ class AulaRt {
         return  DbTemp.Aulas
     }
 
+    @Path("/")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
+    fun AtaulizarAula(@RequestBody atualizarAulaDto: AtualizarAulaDto) : MensagemDto{
+        var aulaOptional = DbTemp.Aulas
+            .stream()
+            .filter { x -> x.id!! == atualizarAulaDto.iDAula }.findFirst()
+        if(aulaOptional.isEmpty) return  MensagemDto("Aula não encontrada")
+
+        aulaOptional.get().url= atualizarAulaDto.url
+        return MensagemDto("Aula alterada com sucesso")
+    }
 
 
 }

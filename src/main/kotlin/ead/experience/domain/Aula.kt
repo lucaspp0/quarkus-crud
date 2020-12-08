@@ -8,5 +8,6 @@ class Aula(
     var dataInicio: Date? = null,
     var dataFinal: Date? = null,
     var materia: Materia,
+    var url: String? = null,
     var professor: Professor
 )
