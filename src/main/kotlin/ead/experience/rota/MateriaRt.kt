@@ -39,13 +39,20 @@ class MateriaRt {
             .filter { professor -> (professor.id == materiaDto.idProfessor) }
             .findFirst()
 
+        val materiaRepetida: Optional<Materia> = DbTemp.Materias
+                .stream()
+                .filter { materia -> (materia.nome == materiaDto.nome) }
+                .findFirst()
+
+        if(materiaRepetida.isPresent) { return MensagemDto("Essa Matéria já foi cadastrar") }
+
         var filename: String? = null;
         if (materiaDto.foto != null)
             filename = FileUtil.gravarFoto(materiaDto.foto!!)
 
-        if (professorEncontrado.isPresent()) {
+        if (professorEncontrado.isPresent) {
             DbTemp.Materias.add(Materia(nextId, materiaDto.nome, materiaDto.custo, filename, professorEncontrado.get()))
-            return MensagemDto("Materia foi cadastrada com sucesso")
+            return MensagemDto("Matéria foi cadastrada com sucesso")
         } else {
             return MensagemDto("Professor não encontrado")
         }
@@ -58,7 +65,7 @@ class MateriaRt {
     fun materias(@MultipartForm materiaReceiveDto: MateriaReceiveDto): MensagemDto {
         val materiaCara = DbTemp.Materias.stream().filter { x -> x.id!! == materiaReceiveDto.id }.findFirst()
         if(materiaCara.isEmpty){
-            return MensagemDto("Materia não encontrada")
+            return MensagemDto("Matéria não encontrada")
         }else{
 
             val professorEncontrado: Optional<Professor> = DbTemp.Professores
@@ -77,7 +84,7 @@ class MateriaRt {
             materiaCara.get().custo = materiaReceiveDto.custo;
             materiaCara.get().professor = professorEncontrado.get()
 
-            return MensagemDto("Materia atualizada com sucesso")
+            return MensagemDto("Matéria atualizada com sucesso")
         }
 
     }
