@@ -66,7 +66,7 @@ class AlunoRt {
             aluno.senha,
             aluno.login,
             null,
-            if (aluno.CH != null || aluno.CH!! <= 0 ) 10f else aluno.CH
+            if (aluno.CH == null || aluno.CH!! <= 0) 10f else aluno.CH
         )
         if(aluno.foto != null)
             alunoSend.foto = FileUtil.obterbase64(aluno.foto!!)
