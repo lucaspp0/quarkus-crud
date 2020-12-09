@@ -80,7 +80,7 @@ class AulaRt {
             return MensagemDto("Aula não encontrada")
         }else{
             aulaOptional.get().dataFinal = Date()
-            return MensagemDto("Aula não encontrada")
+            return MensagemDto("Aula fechada")
         }
     }
 
