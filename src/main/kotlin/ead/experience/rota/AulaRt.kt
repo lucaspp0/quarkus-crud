@@ -1,5 +1,6 @@
 package ead.experience.rota
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import ead.experience.domain.Aula
 import ead.experience.dto.MensagemDto
 import ead.experience.repository.DbTemp
@@ -31,11 +32,12 @@ open class FiltroAula(
     var dataInicial: Long? = null
 )
 
-open class AtualizarAulaDto(
-    var iDAula: Int,
-    var url: String,
+@JsonIgnoreProperties(ignoreUnknown = true)
+open class AtualizarAulaDto {
+    var idAula: Int? = null
+    var url: String? = null
     var conteudo: String? = null
-)
+}
 
 @Path("/aula")
 class AulaRt {
@@ -145,11 +147,12 @@ class AulaRt {
     @Path("/")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
     fun AtaulizarAula(@RequestBody atualizarAulaDto: AtualizarAulaDto) : MensagemDto{
         var aulaOptional = DbTemp.Aulas
             .stream()
-            .filter { x -> x.id!! == atualizarAulaDto.iDAula }.findFirst()
+            .filter { x -> x.id!! == atualizarAulaDto.idAula }.findFirst()
         if(aulaOptional.isEmpty) return  MensagemDto("Aula não encontrada")
 
         aulaOptional.get().url= atualizarAulaDto.url
