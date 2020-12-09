@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType
 
 open class AulaDto(
     var idMateria: Int,
-    var idprofessor: Int
+    var idprofessor: Int,
     var conteudo: String? = null
 )
 
