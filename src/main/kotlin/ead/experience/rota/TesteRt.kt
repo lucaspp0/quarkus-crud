@@ -36,4 +36,9 @@ class TesteRt {
     @Produces(MediaType.APPLICATION_JSON)
     fun aulas() = Response.ok().entity(DbTemp.Aulas).build()
 
+    @Path("/alunoMateria")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    fun alunoMateria() = Response.ok().entity(DbTemp.AlunoMateria).build()
+
 }
