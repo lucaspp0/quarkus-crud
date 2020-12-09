@@ -9,5 +9,6 @@ class Aula(
     var dataFinal: Date? = null,
     var materia: Materia,
     var url: String? = null,
-    var professor: Professor
+    var professor: Professor,
+    var conteudo: String? = ""
 )
