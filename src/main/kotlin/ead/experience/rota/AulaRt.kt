@@ -62,7 +62,6 @@ class AulaRt {
             }
             else{
                 val nextId = DbTemp.Aulas.maxBy { x -> x.id }!!.id.plus(1)
-
                 if( DbTemp.Aulas
                         .any { x -> x.materia.id == materiaOptional.get().id!! &&
                                 x.professor.id!! == profOptional.get().id!! &&
