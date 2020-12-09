@@ -15,5 +15,4 @@ open class MateriaReceiveDto () {
     var idProfessor: Int = 0
     @FormParam("foto")
     var foto: File? = null
-
 }
