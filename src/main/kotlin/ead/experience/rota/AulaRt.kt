@@ -14,7 +14,8 @@ import javax.ws.rs.core.MediaType
 
 open class AulaDto(
     var idMateria: Int,
-    var idprofessor: Int
+    var idprofessor: Int,
+    var conteudo: String? = null
 )
 
 open class AlunoMateriaDto(
@@ -32,7 +33,8 @@ open class FiltroAula(
 
 open class AtualizarAulaDto(
     var iDAula: Int,
-    var url: String
+    var url: String,
+    var conteudo: String? = ""
 )
 
 @Path("/aula")
@@ -62,7 +64,7 @@ class AulaRt {
                         } ){
                     return MensagemDto("Aula já está iniciada")
                 }
-                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), null, profOptional.get()) )
+                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), null, profOptional.get(),aulaDto.conteudo) )
                 return MensagemDto("Aula iniciada")
             }
 
@@ -150,8 +152,9 @@ class AulaRt {
             .stream()
             .filter { x -> x.id!! == atualizarAulaDto.iDAula }.findFirst()
         if(aulaOptional.isEmpty) return  MensagemDto("Aula não encontrada")
-
-        aulaOptional.get().url= atualizarAulaDto.url
+        if(atualizarAulaDto.url != null){aulaOptional.get().url = atualizarAulaDto.url }
+        
+        aulaOptional.get().conteudo=atualizarAulaDto.conteudo
         return MensagemDto("Aula alterada com sucesso")
     }
 
