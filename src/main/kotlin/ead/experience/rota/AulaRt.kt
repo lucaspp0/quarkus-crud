@@ -112,7 +112,8 @@ class AulaRt {
     @Operation(description = "pegar aulas gravadas e filtradas")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
     fun filtraAulas(@RequestBody filtroAula: FiltroAula) : List<Aula> {
-        var listaMateria = DbTemp.Aulas.filter { x -> x.dataFinal != null }.toMutableList()
+        // var listaMateria = DbTemp.Aulas.filter { x -> x.dataFinal != null }.toMutableList()
+        var listaMateria = DbTemp.Aulas
         if(filtroAula.dataFinal != null)
             listaMateria = listaMateria.filter { x -> x.dataFinal != null && x.dataFinal!!.before(Date(filtroAula.dataFinal!!)) }.toMutableList()
 
