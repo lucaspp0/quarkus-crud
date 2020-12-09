@@ -10,5 +10,6 @@ class Aula(
     var materia: Materia,
     var url: String? = null,
     var professor: Professor,
-    var conteudo: String? = null
+    var conteudo: String? = ""
+
 )
