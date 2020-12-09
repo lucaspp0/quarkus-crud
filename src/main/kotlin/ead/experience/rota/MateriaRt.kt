@@ -85,6 +85,10 @@ class MateriaRt {
             materiaCara.get().custo = materiaReceiveDto.custo;
             materiaCara.get().professor = professorEncontrado.get()
 
+            if(filename != null){
+                materiaCara.get().foto = filename
+            }
+
             return MensagemDto("Matéria atualizada com sucesso")
         }
 

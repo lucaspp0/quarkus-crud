@@ -139,6 +139,7 @@ class AulaRt {
 
         if(filtroAula.idMateria != null)
             listaMateria = listaMateria.filter { x -> x.materia.id!! == filtroAula.idMateria!! }.toMutableList()
+
         return convertList(listaMateria)
     }
 
@@ -171,6 +172,7 @@ class AulaRt {
         val aulaOptional = DbTemp.Aulas
             .stream()
             .filter { x -> x.id == atualizarAulaDto.idAula }.findFirst()
+
         if(aulaOptional.isEmpty) return  MensagemDto("Aula não encontrada")
 
         if(atualizarAulaDto.urlSalva!=null){ aulaOptional.get().url= atualizarAulaDto.urlSalva }
