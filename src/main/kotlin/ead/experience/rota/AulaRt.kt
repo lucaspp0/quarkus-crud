@@ -53,7 +53,7 @@ class AulaRt {
         if(materiaOptional.isEmpty){
             return MensagemDto("Matéria não encontrada")
         }else{
-            val profOptional = DbTemp.Professores.stream().filter { x -> x.id!! == aulaDto.idprofessor }.findFirst()
+            val profOptional = DbTemp.Professores.stream().filter { x -> x.id!! == aulaDto.idProfessor }.findFirst()
 
             if(profOptional.isEmpty){
                 return MensagemDto("Professor não encontrada")
