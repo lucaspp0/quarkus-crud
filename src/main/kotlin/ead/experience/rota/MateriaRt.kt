@@ -76,7 +76,6 @@ class MateriaRt {
             if (professorEncontrado.isEmpty) {
                 return MensagemDto("ID do professor não encontrado")
             }
-
             var filename: String? = null;
             if (materiaReceiveDto.foto != null)
                 filename = FileUtil.gravarFoto(materiaReceiveDto.foto!!)
