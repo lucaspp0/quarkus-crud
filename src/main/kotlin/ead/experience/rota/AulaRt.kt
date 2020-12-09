@@ -2,6 +2,8 @@ package ead.experience.rota
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import ead.experience.domain.Aula
+import ead.experience.domain.Materia
+import ead.experience.domain.Professor
 import ead.experience.dto.MensagemDto
 import ead.experience.repository.DbTemp
 import ead.experience.utils.FileUtil
@@ -41,6 +43,17 @@ open class AtualizarAulaDto {
     var conteudo: String? = null
 }
 
+open class AulaToSend(
+    var id: Int,
+    var dataInicio: Date? = null,
+    var dataFinal: Date? = null,
+    var materia: Materia,
+    var url: String? = null,
+    var urlSalva: String? = "",
+    var professor: Professor,
+    var conteudo: String? = ""
+
+)
 
 @Path("/aula")
 class AulaRt {
@@ -96,7 +109,7 @@ class AulaRt {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar aulas online do aluno")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarAulaOnlineDeAluno(@PathParam id: Int) : List<Aula> {
+    fun pegarAulaOnlineDeAluno(@PathParam id: Int) : List<AulaToSend> {
         val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.id }
         return convertList(DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal == null && aulas.dataInicio!!.before(Date()) }.toMutableList())
     }
@@ -107,7 +120,7 @@ class AulaRt {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar todas aulas salvas do aluno")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarTodasAulaDeAluno(@PathParam id: Int) : List<Aula> {
+    fun pegarTodasAulaDeAluno(@PathParam id: Int) : List<AulaToSend> {
         val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.id }
         return convertList(
             DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal != null }.toMutableList()
@@ -120,7 +133,7 @@ class AulaRt {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar aulas gravadas e filtradas")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun filtraAulas(@RequestBody filtroAula: FiltroAula) : List<Aula> {
+    fun filtraAulas(@RequestBody filtroAula: FiltroAula) : List<AulaToSend> {
         // var listaMateria = DbTemp.Aulas.filter { x -> x.dataFinal != null }.toMutableList()
         var listaMateria = DbTemp.Aulas
         if(filtroAula.dataFinal != null)
@@ -147,12 +160,21 @@ class AulaRt {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarAulas() : List<Aula> {
+    fun pegarAulas() : List<AulaToSend> {
         return  convertList(DbTemp.Aulas)
     }
 
-    fun convertList(lista: MutableList<Aula>) : kotlin.collections.MutableList<Aula> {
-        val aulas = mutableListOf<Aula>().apply { addAll(lista) }
+    fun convertList(lista: MutableList<Aula>) : kotlin.collections.MutableList<AulaToSend> {
+        val aulas = lista.map { x -> AulaToSend(
+            x.id,
+                    x.dataInicio,
+                    x.dataFinal,
+                    x.materia,
+                    x.url,
+                    x.urlSalva,
+                    x.professor,
+                    x.conteudo
+        ) }
 
         aulas.forEach {
             if(it.materia.foto != null){
@@ -160,7 +182,7 @@ class AulaRt {
             }
         }
 
-        return aulas
+        return aulas.toMutableList()
     }
 
     @Path("/")
