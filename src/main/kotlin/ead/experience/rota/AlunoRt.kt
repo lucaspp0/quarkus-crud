@@ -10,11 +10,34 @@ import ead.experience.utils.FileUtil
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.jboss.resteasy.annotations.jaxrs.PathParam
+import java.io.File
 import java.nio.file.Files
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
-open class AlunoReceiveDto(var id: Int ) : AlunoDto()
+open class AlunoReceiveDto{
+
+    @FormParam("id")
+    var id: Int = 0
+
+    @FormParam("nome")
+    var nome: String = ""
+
+    @FormParam("email")
+    lateinit var email: String
+
+    @FormParam("senha")
+    lateinit var senha: String
+
+    @FormParam("login")
+    lateinit var login: String
+
+    @FormParam("foto")
+    var foto: File? = null
+
+    @FormParam("CH")
+    var CH: Float? = null
+}
 
 @Path("/aluno")
 class AlunoRt {
