@@ -89,7 +89,7 @@ class AulaRt {
                         } ){
                     return MensagemDto("Aula já está iniciada")
                 }
-                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), null, aulaDto.url, profOptional.get(), aulaDto.conteudo) )
+                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), aulaDto.url, null, profOptional.get(), aulaDto.conteudo) )
                 return MensagemDto("Aula iniciada")
             }
 
@@ -209,7 +209,7 @@ class AulaRt {
 
         if(aulaOptional.isEmpty) return  MensagemDto("Aula não encontrada")
 
-        if(atualizarAulaDto.urlSalva!=null){ aulaOptional.get().url= atualizarAulaDto.urlSalva }
+        if(atualizarAulaDto.urlSalva!=null){ aulaOptional.get().urlSalva = atualizarAulaDto.urlSalva }
 
         if(atualizarAulaDto.conteudo!=null){ aulaOptional.get().conteudo= atualizarAulaDto.conteudo }
 
