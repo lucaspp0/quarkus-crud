@@ -2,7 +2,6 @@ package ead.experience.rota
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import ead.experience.domain.Aula
-import ead.experience.domain.Materia
 import ead.experience.domain.Professor
 import ead.experience.dto.MensagemDto
 import ead.experience.repository.DbTemp
@@ -47,12 +46,20 @@ open class AulaToSend(
     var id: Int,
     var dataInicio: Date? = null,
     var dataFinal: Date? = null,
-    var materia: Materia,
+    var materia: MateriaSendCustom,
     var url: String? = null,
     var urlSalva: String? = "",
     var professor: Professor,
     var conteudo: String? = ""
 
+)
+
+open class MateriaSendCustom(
+    var id: Int? = null,
+    var nome: String? = null,
+    var custo: Float? = null,
+    var foto: String? = null,
+    var professor: Professor? = null
 )
 
 @Path("/aula")
@@ -169,20 +176,25 @@ class AulaRt {
             x.id,
                     x.dataInicio,
                     x.dataFinal,
-                    x.materia,
+            MateriaSendCustom(
+                x.id,
+                        x.materia.nome,
+                        x.materia.custo,
+                        teste(x.materia.foto),
+                        x.professor
+            ),
                     x.url,
                     x.urlSalva,
                     x.professor,
                     x.conteudo
         ) }
 
-        aulas.forEach {
-            if(it.materia.foto != null){
-                it.materia.foto = "data:image/png;base64," + FileUtil.obterbase64(it.materia.foto!!)
-            }
-        }
-
         return aulas.toMutableList()
+    }
+
+    fun teste(url: String?): String?{
+        if(url != null ) return "data:image/png;base64," + FileUtil.obterbase64(url!!)
+        else return null
     }
 
     @Path("/")
