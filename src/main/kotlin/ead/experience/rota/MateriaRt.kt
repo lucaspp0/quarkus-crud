@@ -76,7 +76,6 @@ class MateriaRt {
             if (professorEncontrado.isEmpty) {
                 return MensagemDto("ID do professor não encontrado")
             }
-
             var filename: String? = null;
             if (materiaReceiveDto.foto != null)
                 filename = FileUtil.gravarFoto(materiaReceiveDto.foto!!)
@@ -84,6 +83,10 @@ class MateriaRt {
             materiaCara.get().nome = materiaReceiveDto.nome;
             materiaCara.get().custo = materiaReceiveDto.custo;
             materiaCara.get().professor = professorEncontrado.get()
+
+            if(filename != null){
+                materiaCara.get().foto = filename
+            }
 
             return MensagemDto("Matéria atualizada com sucesso")
         }

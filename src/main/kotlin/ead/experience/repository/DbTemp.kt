@@ -27,6 +27,6 @@ object DbTemp {
 
     val Aulas =
         mutableListOf<Aula>(
-            Aula(1, Date(), null, Materias[0], null, Professores[0])
+            Aula(1, Date(), null, Materias[0], null, null, Professores[0])
         )
 }

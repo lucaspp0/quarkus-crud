@@ -1,6 +1,5 @@
 package ead.experience.domain
 
-import ead.experience.domain.Materia
 import java.util.*
 
 class Aula(
@@ -9,6 +8,7 @@ class Aula(
     var dataFinal: Date? = null,
     var materia: Materia,
     var url: String? = null,
+    var urlSalva: String? = "",
     var professor: Professor,
     var conteudo: String? = ""
 

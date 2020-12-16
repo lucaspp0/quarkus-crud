@@ -2,8 +2,10 @@ package ead.experience.rota
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import ead.experience.domain.Aula
+import ead.experience.domain.Professor
 import ead.experience.dto.MensagemDto
 import ead.experience.repository.DbTemp
+import ead.experience.utils.FileUtil
 import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
@@ -15,7 +17,8 @@ import javax.ws.rs.core.MediaType
 
 open class AulaDto(
     var idMateria: Int,
-    var idprofessor: Int,
+    var idProfessor: Int,
+    var url: String = "",
     var conteudo: String? = null
 )
 
@@ -36,10 +39,29 @@ open class FiltroAula(
 @JsonIgnoreProperties(ignoreUnknown = true)
 open class AtualizarAulaDto {
     var idAula: Int? = null
-    var url: String? = null
+    var urlSalva: String? = null
     var conteudo: String? = null
 }
 
+open class AulaToSend(
+    var id: Int,
+    var dataInicio: Date? = null,
+    var dataFinal: Date? = null,
+    var materia: MateriaSendCustom,
+    var url: String? = null,
+    var urlSalva: String? = "",
+    var professor: Professor,
+    var conteudo: String? = ""
+
+)
+
+open class MateriaSendCustom(
+    var id: Int? = null,
+    var nome: String? = null,
+    var custo: Float? = null,
+    var foto: String? = null,
+    var professor: Professor? = null
+)
 
 @Path("/aula")
 class AulaRt {
@@ -54,7 +76,7 @@ class AulaRt {
         if(materiaOptional.isEmpty){
             return MensagemDto("Matéria não encontrada")
         }else{
-            val profOptional = DbTemp.Professores.stream().filter { x -> x.id!! == aulaDto.idprofessor }.findFirst()
+            val profOptional = DbTemp.Professores.stream().filter { x -> x.id!! == aulaDto.idProfessor }.findFirst()
 
             if(profOptional.isEmpty){
                 return MensagemDto("Professor não encontrada")
@@ -64,11 +86,11 @@ class AulaRt {
                 if( DbTemp.Aulas
                         .any { x -> x.materia.id == materiaOptional.get().id!! &&
                                 x.professor.id!! == profOptional.get().id!! &&
-                                x.dataFinal != null
+                                x.dataFinal == null
                         } ){
                     return MensagemDto("Aula já está iniciada")
                 }
-                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), null, profOptional.get(),aulaDto.conteudo) )
+                DbTemp.Aulas.add( Aula(nextId, Date(), null, materiaOptional.get(), aulaDto.url, null, profOptional.get(), aulaDto.conteudo) )
                 return MensagemDto("Aula iniciada")
             }
 
@@ -95,9 +117,9 @@ class AulaRt {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar aulas online do aluno")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarAulaOnlineDeAluno(@PathParam id: Int) : List<Aula> {
+    fun pegarAulaOnlineDeAluno(@PathParam id: Int) : List<AulaToSend> {
         val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.id }
-        return DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal == null && aulas.dataInicio!!.before(Date()) }
+        return convertList(DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal == null && aulas.dataInicio!!.before(Date()) }.toMutableList())
     }
 
 
@@ -106,9 +128,11 @@ class AulaRt {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar todas aulas salvas do aluno")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarTodasAulaDeAluno(@PathParam id: Int) : List<Aula> {
+    fun pegarTodasAulaDeAluno(@PathParam id: Int) : List<AulaToSend> {
         val materiasId = DbTemp.AlunoMateria.filter { x -> x.aluno!!.id!! == id }.map { x -> x.id }
-        return DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal != null }
+        return convertList(
+            DbTemp.Aulas.filter { aulas -> materiasId.contains(aulas.materia.id!!) && aulas.dataFinal != null }.toMutableList()
+        )
     }
 
 
@@ -117,7 +141,7 @@ class AulaRt {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pegar aulas gravadas e filtradas")
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun filtraAulas(@RequestBody filtroAula: FiltroAula) : List<Aula> {
+    fun filtraAulas(@RequestBody filtroAula: FiltroAula) : List<AulaToSend> {
         // var listaMateria = DbTemp.Aulas.filter { x -> x.dataFinal != null }.toMutableList()
         var listaMateria = DbTemp.Aulas
         if(filtroAula.dataFinal != null)
@@ -136,15 +160,42 @@ class AulaRt {
 
         if(filtroAula.idMateria != null)
             listaMateria = listaMateria.filter { x -> x.materia.id!! == filtroAula.idMateria!! }.toMutableList()
-        return listaMateria
+
+        return convertList(listaMateria)
     }
 
     @Path("/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
-    fun pegarAulas() : List<Aula> {
-        return  DbTemp.Aulas
+    fun pegarAulas() : List<AulaToSend> {
+        return  convertList(DbTemp.Aulas)
+    }
+
+    fun convertList(lista: MutableList<Aula>) : kotlin.collections.MutableList<AulaToSend> {
+        val aulas = lista.map { x -> AulaToSend(
+            x.id,
+                    x.dataInicio,
+                    x.dataFinal,
+            MateriaSendCustom(
+                x.id,
+                        x.materia.nome,
+                        x.materia.custo,
+                        teste(x.materia.foto),
+                        x.professor
+            ),
+                    x.url,
+                    x.urlSalva,
+                    x.professor,
+                    x.conteudo
+        ) }
+
+        return aulas.toMutableList()
+    }
+
+    fun teste(url: String?): String?{
+        if(url != null ) return "data:image/png;base64," + FileUtil.obterbase64(url!!)
+        else return null
     }
 
     @Path("/")
@@ -153,12 +204,13 @@ class AulaRt {
     @Consumes(MediaType.APPLICATION_JSON)
     @APIResponse(description = "Tudo certo meu chapa", responseCode = "200")
     fun AtaulizarAula(@RequestBody atualizarAulaDto: AtualizarAulaDto) : MensagemDto{
-        var aulaOptional = DbTemp.Aulas
+        val aulaOptional = DbTemp.Aulas
             .stream()
-            .filter { x -> x.id!! == atualizarAulaDto.idAula }.findFirst()
+            .filter { x -> x.id == atualizarAulaDto.idAula }.findFirst()
+
         if(aulaOptional.isEmpty) return  MensagemDto("Aula não encontrada")
 
-        if(atualizarAulaDto.url!=null){ aulaOptional.get().url= atualizarAulaDto.url }
+        if(atualizarAulaDto.urlSalva!=null){ aulaOptional.get().urlSalva = atualizarAulaDto.urlSalva }
 
         if(atualizarAulaDto.conteudo!=null){ aulaOptional.get().conteudo= atualizarAulaDto.conteudo }
 
