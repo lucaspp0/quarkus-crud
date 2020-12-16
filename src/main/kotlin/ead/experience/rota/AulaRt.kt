@@ -24,6 +24,7 @@ open class AlunoMateriaDto(
     var idAluno: Int
 )
 
+
 open class FiltroAula(
     var idMateria: Int? = null,
     var idAluno: Int? = null,
